@@ -38,20 +38,30 @@ app.get("/api/getFromId/:id", (req, res) => {
 // Route to add user
 app.post('/api/create', (req, res) => {
 
-    const username = req.body.username;
     const password = req.body.password;
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
     const email = req.body.email;
 
-    const result = db.createUser(
-        username, 
-        password, 
-        firstName, 
-        lastName, 
-        email
-    );
-    res.send({"message": result});
+    const allUsers = db.getAllUsers();
+    const userCount = db.getUserCount();
+    let user;
+    for (let i = 0; i < userCount; i++) {
+        console.log(allUsers[i])
+        if (allUsers[i].email === email) {
+            user = allUsers[i];
+        }
+    }
+
+    if (user) {
+        res.send({"user": user, method: "login"});
+    } else {
+        const result = db.createUser(
+            email,
+            password
+        );
+        res.send({"user": result, method: "signup"});
+    }
+
+
 })
 
 // Add points to user

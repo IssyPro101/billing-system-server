@@ -1,13 +1,9 @@
 class User {
-    constructor(id, username, password, first_name, last_name, email) {
+    constructor(id, email, password) {
         this.id = id
-        this.username = username;
         this.password = password;
-        this.firstName = first_name;
-        this.lastLame = last_name
         this.email = email;
         this.points = 0;
-
     }
 
     getUserPoints() {
