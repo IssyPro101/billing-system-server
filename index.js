@@ -38,21 +38,29 @@ app.get("/api/getFromId/:id", (req, res) => {
 // Route to add user
 app.post('/api/create', (req, res) => {
 
+    const username = req.body.username;
+    const password = req.body.password;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const email = req.body.email;
 
-    const result = db.createUser(firstName, lastName, email);
+    const result = db.createUser(
+        username, 
+        password, 
+        firstName, 
+        lastName, 
+        email
+    );
     res.send({"message": result});
 })
 
 // Add points to user
-app.post('/api/points/:id', (req, res) => {
+app.put('/api/points/:id', (req, res) => {
 
     const id = req.params.id;
     const points = req.body.points;
-  
-    const user = db.getUser(id);
+
+    const user = db.getUser(parseInt(id));
     const result = user.addUserPoints(points)
     res.send({"message": result});
 
@@ -72,12 +80,10 @@ app.get('/api/points/:id', (req, res) => {
 
 // Get all menu items
 app.get('/api/menu/items', (req, res) => {
-    const items = db.getMenuItems();
-    const prices = db.getMenuPrices();
+    const items = db.getMenuItems();;
 
     res.send({
-        items,
-        prices
+        items
     }) 
 });
 

@@ -16,7 +16,7 @@ class User {
 
     addUserPoints(points) {
         this.points += points;
-        return `${points} have been given to user. Current Points: ${this.points}`;
+        return `${points} points have been given to user. Current Points: ${this.points}`;
     }
 
     eligibleDiscount() {

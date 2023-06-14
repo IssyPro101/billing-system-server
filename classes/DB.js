@@ -5,8 +5,23 @@ class DB {
     constructor() {
         this.users = {};
         this.userCount = 0;
-        this.menuItems = ["Chicken", "Beef", "Rice"];
-        this.menuPrices = [6,8,9];
+        this.menuItems = [
+            {
+                "name": "Chicken",
+                "description": "Nice tasting chicken",
+                "price": 5
+            },
+            {
+                "name": "Beef",
+                "description": "Nice tasting beef",
+                "price": 7
+            },
+            {
+                "name": "Rice",
+                "description": "Nice tasting rice",
+                "price": 9
+            }
+        ];
     }
 
     getUserCount() {
@@ -31,10 +46,6 @@ class DB {
     
     getMenuItems() {
         return this.menuItems;
-    }
-
-    getMenuPrices() {
-        return this.menuPrices;
     }
 }
 
