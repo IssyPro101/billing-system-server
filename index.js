@@ -25,7 +25,7 @@ app.get("/api/getAll", (req, res) => {
 app.get("/api/getFromId/:id", (req, res) => {
 
     const id = req.params.id;
-    const result = db.getUser(id);
+    const result = db.getUser(parseInt(id));
     if (result) {
         res.send({"user": result, "id": id});
     } else {
@@ -35,7 +35,7 @@ app.get("/api/getFromId/:id", (req, res) => {
 
 });
 
-// Route to add user
+// Route to login or signup
 app.post('/api/create', (req, res) => {
 
     const password = req.body.password;
@@ -45,7 +45,6 @@ app.post('/api/create', (req, res) => {
     const userCount = db.getUserCount();
     let user;
     for (let i = 0; i < userCount; i++) {
-        console.log(allUsers[i])
         if (allUsers[i].email === email) {
             user = allUsers[i];
         }
@@ -64,29 +63,73 @@ app.post('/api/create', (req, res) => {
 
 })
 
-// Add points to user
-app.put('/api/points/:id', (req, res) => {
-
-    const id = req.params.id;
-    const points = req.body.points;
-
-    const user = db.getUser(parseInt(id));
-    const result = user.addUserPoints(points)
-    res.send({"message": result});
-
-});
-
 // Get points of user
 app.get('/api/points/:id', (req, res) => {
 
     const id = req.params.id;
-    const points = req.body.points;
   
-    const user = db.getUser(id);
-    const result = user.getUserPoints(points)
-    res.send({"points": result});
+    const user = db.getUser(parseInt(id));
+    if (user) {
+        const result = user.points
+        res.send({"points": result});
+    } else {
+        res.status(500);
+        res.json({ error: "User not found." });
+    }
+
 
 });
+
+// Get user funds
+app.get('/api/funds/:id', (req, res) => {
+    const id = req.params.id
+
+    const user = db.getUser(parseInt(id));
+    if (user) {
+        const result = user.getUserFunds()
+        res.send({"funds": result});
+    } else {
+        res.status(500);
+        res.json({ error: "User not found." });
+    }
+})
+
+// Add user funds
+app.put('/api/funds/:id', (req, res) => {
+    const id = req.params.id
+    const points = req.body.points
+
+    const user = db.getUser(parseInt(id));
+    if (user) {
+        const currentFunds = user.getUserFunds();
+        if ((currentFunds + points) <= 1000) {
+            const result = user.addUserFunds(points)
+            res.send({"message": result});
+        } else {
+            res.status(500);
+            res.json({ error: "Max funds limit of $1000 reached." });    
+        }
+
+    } else {
+        res.status(500);
+        res.json({ error: "User not found." });
+    }
+})
+
+// Get user discount
+app.get('/api/discount/:id', (req, res) => {
+    const id = req.params.id
+
+    const user = db.getUser(parseInt(id));
+    if (user) {
+        const result = user.eligibleDiscount()
+        res.send({"discount": result});
+    } else {
+        res.status(500);
+        res.json({ error: "User not found." });
+    }
+
+})
 
 // Get all menu items
 app.get('/api/menu/items', (req, res) => {
@@ -96,6 +139,38 @@ app.get('/api/menu/items', (req, res) => {
         items
     }) 
 });
+
+// Get points per order
+app.get('/api/order/points', (req, res) => {
+    const points = db.getPointsPerOrder();
+    res.send({
+        "points": points
+    }) 
+})
+
+// Submit order
+app.post('/api/order/create', (req, res) => {
+
+    const userId = req.body.userId;
+    const item = req.body.item;
+    const date = Date.now()
+
+    const order = db.createOrder(userId, item, date);
+    res.send({"order": order});
+
+
+})
+
+// Get user orders
+app.get('/api/order/:id', (req, res) => {
+
+    const userId = req.params.id;
+
+    const orders = db.getUserOrders(userId);
+    res.send({"userOrders": orders});
+
+
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)
