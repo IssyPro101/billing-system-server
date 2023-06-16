@@ -46,7 +46,14 @@ app.post('/api/create', (req, res) => {
     let user;
     for (let i = 0; i < userCount; i++) {
         if (allUsers[i].email === email) {
-            user = allUsers[i];
+            if (allUsers[i].password === password) {
+                user = allUsers[i];
+            } else {
+                res.status(500);
+                res.json({ error: "Wrong password." });
+                return;
+            }
+
         }
     }
 
