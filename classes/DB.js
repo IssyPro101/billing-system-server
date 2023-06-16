@@ -16,7 +16,7 @@ class DB {
                 },
                 {
                     "name": "Coke",
-                    "description": "A carbonated soft drink manufactured",
+                    "description": "A carbonated soft drink ",
                     "price": 15
                 },
                 {
@@ -26,7 +26,7 @@ class DB {
                 },
                 {
                     "name": "7UP",
-                    "description": "Fresh spring &UP.",
+                    "description": "Fresh spring 7UP.",
                     "price": 5
                 },
                 {
@@ -65,30 +65,36 @@ class DB {
             "dessert": [
                 {
                     "name": "Ice cream",
-                    "description": "Nice tasting chicken",
+                    "description": "Chocolate ice cream.",
                     "price": 7
                 },
                 {
                     "name": "Chocolate",
-                    "description": "Nice tasting beef",
+                    "description": "Bar of chocolate.",
                     "price": 15
                 },
                 {
                     "name": "Yoghurt",
-                    "description": "Nice tasting rice",
+                    "description": "Tub of yoghurt.",
                     "price": 7
                 },
                 {
                     "name": "Jelly",
-                    "description": "Crispy fries.",
+                    "description": "Strawberry jelly.",
                     "price": 5
                 },
                 {
                     "name": "Marshmallow",
-                    "description": "Slurply noodles.",
+                    "description": "Marshmallows on a stick.",
                     "price": 11
                 }
             ]
+        }
+
+        this.requiredPoints = {
+            5: 10,
+            10: 20,
+            20: 50
         }
 
         this.pointsPerOrder = 5;
@@ -121,7 +127,11 @@ class DB {
         return this.menuItems;
     }
 
-    createOrder(userId, item, date) {
+    getRequiredPoints() {
+        return this.requiredPoints;
+    }
+
+    createOrder(userId, item, date, discount) {
 
         // Add order to user order list
         const newOrder = new Order(this.orderCount, item, userId, date)
@@ -129,16 +139,18 @@ class DB {
         this.orderCount += 1;
 
         // Deduct funds
-        const discount = this.users[userId].eligibleDiscount();
         if (discount) {
             const discountedPrice = item.price - (item.price * discount / 100);
             this.users[userId].funds -= discountedPrice;
+            if (this.users[userId].points >= this.requiredPoints[discount]) {
+                this.users[userId].removeUserPoints(this.requiredPoints[discount]);
+            }
+
         } else {
             this.users[userId].funds -= item.price;
+            this.users[userId].addUserPoints(this.pointsPerOrder);
         }
 
-        // Add points
-        this.users[userId].addUserPoints(this.pointsPerOrder);
 
         return newOrder;
 

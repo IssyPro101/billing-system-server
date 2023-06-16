@@ -123,27 +123,21 @@ app.put('/api/funds/:id', (req, res) => {
     }
 })
 
-// Get user discount
-app.get('/api/discount/:id', (req, res) => {
-    const id = req.params.id
-
-    const user = db.getUser(parseInt(id));
-    if (user) {
-        const result = user.eligibleDiscount()
-        res.send({"discount": result});
-    } else {
-        res.status(500);
-        res.json({ error: "User not found." });
-    }
-
-})
-
 // Get all menu items
 app.get('/api/menu/items', (req, res) => {
-    const items = db.getMenuItems();;
+    const items = db.getMenuItems();
 
     res.send({
         items
+    }) 
+});
+
+// Get required points
+app.get('/api/requiredPoints', (req, res) => {
+    const requiredPoints = db.getRequiredPoints();
+
+    res.send({
+        requiredPoints
     }) 
 });
 
@@ -160,9 +154,10 @@ app.post('/api/order/create', (req, res) => {
 
     const userId = req.body.userId;
     const item = req.body.item;
+    const discount = req.body.discount;
     const date = Date.now()
 
-    const order = db.createOrder(userId, item, date);
+    const order = db.createOrder(userId, item, date, discount);
     res.send({"order": order});
 
 

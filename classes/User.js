@@ -20,24 +20,15 @@ class User {
         return `${points} points have been given to user. Current Points: ${this.points}`;
     }
 
+    removeUserPoints(points) {
+        this.points -= points;
+        return `${points} points have removed given to user. Current Points: ${this.points}`;
+
+    }
+
     addUserFunds(funds) {
         this.funds += funds;
         return `${funds} funds have been given to user. Current Funds: ${this.funds}`;
-    }
-
-    eligibleDiscount() {
-        const userPoints = this.points;
-        
-        if (userPoints >= 10 && userPoints < 25) {
-            return 5;
-        } else if (userPoints >= 25 && userPoints < 50) {
-            return 10
-        } else if (userPoints >= 50) {
-            return 20
-        } else {
-            return 0;
-        }
-
     }
 
 
