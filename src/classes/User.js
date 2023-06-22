@@ -2,7 +2,7 @@
 class User {
     // Define the constructor for the class
     constructor(id, email, password) {
-        // The id of the user, typically a unique value
+        // The id of the user
         this.id = id;
 
         // The email of the user
@@ -34,7 +34,7 @@ class User {
         this.points += points;
 
         // Return a message indicating the points have been added
-        return `${points} points have been given to user. Current Points: ${this.points}`;
+        return `${points} points have been given to user.`;
     }
 
     // Method to remove points from the user
@@ -43,7 +43,7 @@ class User {
         this.points -= points;
 
         // Return a message indicating the points have been removed
-        return `${points} points have removed given to user. Current Points: ${this.points}`;
+        return `${points} points have removed given to user.`;
 
     }
 
@@ -53,7 +53,16 @@ class User {
         this.funds += funds;
 
         // Return a message indicating the funds have been added
-        return `${funds} funds have been given to user. Current Funds: ${this.funds}`;
+        return `${funds} funds have been given to user.`;
+    }
+
+    // Set user funds to 1000
+    setFundsTo1000() {
+        // Add the points to the user's current points
+        this.funds = 1000;
+
+        // Return a message indicating the points have been added
+        return `User now has 1000 funds.`;
     }
 }
 

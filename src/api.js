@@ -2,42 +2,48 @@
 const express = require('express'); // Express for building the server API
 const cors = require('cors') // CORS for cross origin resource sharing
 const DB = require("./classes/DB") // Custom class for handling the database
-
+const serverless = require("serverless-http"); // make API severless for hosting
 // Initialize the express application
 const app = express();
 
+// Create a router to handle routes
+const router = express.Router();
+
 // Set the port for the server
-const PORT = 3001;
+// const PORT = 3001;
 
 // Use the CORS middleware to handle cross-origin requests
-app.use(cors()); 
+app.use(cors());
+
+// Use the router to handle requests to the `/.netlify/functions` path
+app.use(`/.netlify/functions/api`, router);
 
 // Use Express's built-in JSON parser to handle JSON payload
 app.use(express.json())
 
 // Initialize an instance of the DB class
-const db = new DB; 
+const db = new DB;
 
 // Define an endpoint to get the count of users
-app.get("/api/getUserCount", (request, response) => {
+router.get("/getUserCount", (request, response) => {
     // Get the count of users from the DB class
-    const result = db.getUserCount(); 
+    const result = db.getUserCount();
 
     // Send the count of users as a JSON object
-    response.send({ "userCount": result }); 
+    response.send({ "userCount": result });
 });
 
 // Define an endpoint to get all user data
-app.get("/api/getAll", (request, response) => {
+router.get("/getAll", (request, response) => {
     // Get all users from the DB class
-    const result = db.getAllUsers(); 
+    const result = db.getAllUsers();
 
     // Send all user data as a JSON object
-    response.send({ "users": result }); 
+    response.send({ "users": result });
 });
 
 // Define an endpoint to get a specific user based on ID
-app.get("/api/getFromId/:userId", (request, response) => {
+router.get("/getFromId/:userId", (request, response) => {
     // Get the user ID from the request parameters
     const userId = request.params.userId;
 
@@ -55,7 +61,7 @@ app.get("/api/getFromId/:userId", (request, response) => {
 });
 
 // Define an endpoint to handle user creation or login
-app.post('/api/create', (request, response) => {
+router.post('/create', (request, response) => {
     // Get password and email from the request body
     const password = request.body.password;
     const email = request.body.email;
@@ -93,7 +99,7 @@ app.post('/api/create', (request, response) => {
 })
 
 // Define an endpoint to get a user's points
-app.get('/api/points/:userId', (request, response) => {
+router.get('/points/:userId', (request, response) => {
     // Get the user ID from the request parameters
     const userId = request.params.userId;
 
@@ -112,7 +118,7 @@ app.get('/api/points/:userId', (request, response) => {
 });
 
 // Define an endpoint to get a user's funds
-app.get('/api/funds/:userId', (request, response) => {
+router.get('/funds/:userId', (request, response) => {
     // Get the user ID from the request parameters
     const userId = request.params.userId
 
@@ -131,25 +137,28 @@ app.get('/api/funds/:userId', (request, response) => {
 })
 
 // Define an endpoint to add funds to a user's account
-app.put('/api/funds/:userId', (request, response) => {
+router.put('/funds/:userId', (request, response) => {
     // Get the user ID and points from the request parameters and body
     const userId = request.params.userId
-    const points = request.body.points
+    const funds = request.body.funds
 
     // Get the user based on ID from the DB class
     const user = db.getUser(parseInt(userId));
 
-    // If a user is found, get the user's current funds and add the points to it
+    // If a user is found, get the user's current funds and add the funds to it
     if (user) {
         const currentFunds = user.getUserFunds();
-        // If adding the points would not exceed $1000, add the funds and send a success message
-        if ((currentFunds + points) <= 1000) {
-            const result = user.addUserFunds(points)
-            response.send({ "message": result });
-        } else {
-            // If adding the points would exceed $1000, send an error with status code 500
+        // If adding the funds would not exceed $1000, add the funds and send a success message
+        if (currentFunds === 1000) {
+            // If funds is equal to $1000, send an error with status code 500
             response.status(500);
             response.json({ error: "Max funds limit of $1000 reached." });
+        } else if ((currentFunds + funds) <= 1000) {
+            const result = user.addUserFunds(funds)
+            response.send({ "message": result });
+        } else if ((currentFunds + funds) > 1000) {
+            const result = user.setFundsTo1000();
+            response.send({ "message": result });
         }
     } else {
         // If a user is not found, send an error with status code 500
@@ -159,7 +168,7 @@ app.put('/api/funds/:userId', (request, response) => {
 })
 
 // Define an endpoint to get all menu items
-app.get('/api/menu/items', (request, response) => {
+router.get('/menu/items', (request, response) => {
     // Get all menu items from the DB class
     const items = db.getMenuItems();
 
@@ -168,7 +177,7 @@ app.get('/api/menu/items', (request, response) => {
 });
 
 // Define an endpoint to get required points for discounts
-app.get('/api/requiredPoints', (request, response) => {
+router.get('/requiredPoints', (request, response) => {
     // Get the required points for discounts from the DB class
     const requiredPoints = db.getRequiredPoints();
 
@@ -177,7 +186,7 @@ app.get('/api/requiredPoints', (request, response) => {
 });
 
 // Define an endpoint to get the points gained per order
-app.get('/api/order/points', (request, response) => {
+router.get('/order/points', (request, response) => {
     // Get the points per order from the DB class
     const points = db.getPointsPerOrder();
 
@@ -186,7 +195,7 @@ app.get('/api/order/points', (request, response) => {
 })
 
 // Define an endpoint to submit an order
-app.post('/api/order/create', (request, response) => {
+router.post('/order/create', (request, response) => {
     // Get the user ID, item, discount and current date from the request body and Date function
     const userId = request.body.userId;
     const item = request.body.item;
@@ -201,7 +210,7 @@ app.post('/api/order/create', (request, response) => {
         // Get the user's points and the required points for discounts
         const userPoints = user.getUserPoints();
         const requiredPoints = db.getRequiredPoints();
-    
+
         // If the user has enough points for the discount, create the order and send the order as a JSON object
         if (userPoints >= requiredPoints[discount]) {
             const order = db.createOrder(userId, item, date, discount);
@@ -219,7 +228,7 @@ app.post('/api/order/create', (request, response) => {
 })
 
 // Define an endpoint to get a user's orders
-app.get('/api/order/:userId', (request, response) => {
+router.get('/order/:userId', (request, response) => {
     // Get the user ID from the request parameters
     const userId = request.params.userId;
 
@@ -231,6 +240,8 @@ app.get('/api/order/:userId', (request, response) => {
 })
 
 // Start the server and log a success message
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`)
-})
+// app.listen(PORT, () => {
+//     console.log(`Server is running on ${PORT}`)
+// })
+module.exports = app;
+module.exports.handler = serverless(app);
