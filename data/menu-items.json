@@ -1,0 +1,83 @@
+{
+    "drinks": [
+        {
+          "name": "Fanta",
+          "description": "Refreshing orange carbonated beverage.",
+          "price": 5
+        },
+        {
+          "name": "Coke",
+          "description": "Classic cola with a rich and bubbly taste.",
+          "price": 4
+        },
+        {
+          "name": "Sprite",
+          "description": "Crisp and clear lemon-lime carbonated beverage.",
+          "price": 5
+        },
+        {
+          "name": "7UP",
+          "description": "Refreshing and bubbly lemon-lime carbonated beverage.",
+          "price": 4
+        },
+        {
+          "name": "Water",
+          "description": "Pure and refreshing spring lake water.",
+          "price": 5
+        }
+      ],
+    "food": [
+        {
+            "name": "Chicken Sandwich",
+            "description": "Crispy chicken sandwich with lettuce.",
+            "price": 7
+        },
+        {
+            "name": "Cheeseburger",
+            "description": "Classic cheeseburger with special sauce.",
+            "price": 15
+        },
+        {
+            "name": "Fried Rice",
+            "description": "A flavorful combination of rice and vegetables stir-fried to perfection.",
+            "price": 7
+        },
+        {
+            "name": "Fries",
+            "description": "Crispy and golden French fries seasoned with salt.",
+            "price": 5
+        },
+        {
+            "name": "Chicken Nuggets",
+            "description": "Deliciously crispy golden brown chicken nuggets.",
+            "price": 11
+        }
+    ],
+    "dessert": [
+        {
+          "name": "Ice Cream",
+          "description": "Creamy and indulgent frozen dessert available in various flavors.",
+          "price": 7
+        },
+        {
+          "name": "Chocolate",
+          "description": "Decadent and rich chocolate treat that will satisfy your sweet cravings.",
+          "price": 9
+        },
+        {
+          "name": "Cake",
+          "description": "Deliciously moist and layered cake with a variety of frosting options.",
+          "price": 10
+        },
+        {
+          "name": "Jelly",
+          "description": "Soft and jiggly fruity gelatin dessert that's fun to eat.",
+          "price": 6
+        },
+        {
+          "name": "Donuts",
+          "description": "Freshly fried or baked pastries with a variety of flavors and toppings.",
+          "price": 7
+        }
+      ]
+}

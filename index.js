@@ -1,179 +1,236 @@
-const express = require('express');
-const cors = require('cors')
-const DB = require("./classes/DB")
+// Import the necessary dependencies
+const express = require('express'); // Express for building the server API
+const cors = require('cors') // CORS for cross origin resource sharing
+const DB = require("./classes/DB") // Custom class for handling the database
+
+// Initialize the express application
 const app = express();
 
+// Set the port for the server
 const PORT = 3001;
-app.use(cors());
+
+// Use the CORS middleware to handle cross-origin requests
+app.use(cors()); 
+
+// Use Express's built-in JSON parser to handle JSON payload
 app.use(express.json())
 
-const db = new DB;
+// Initialize an instance of the DB class
+const db = new DB; 
 
-// Route to get user count
-app.get("/api/getUserCount", (req, res) => {
-    const result = db.getUserCount();
-    res.send({"userCount": result});
+// Define an endpoint to get the count of users
+app.get("/api/getUserCount", (request, response) => {
+    // Get the count of users from the DB class
+    const result = db.getUserCount(); 
+
+    // Send the count of users as a JSON object
+    response.send({ "userCount": result }); 
 });
 
-// Get all user objects
-app.get("/api/getAll", (req, res) => {
-    const result = db.getAllUsers();
-    res.send({"users": result});
+// Define an endpoint to get all user data
+app.get("/api/getAll", (request, response) => {
+    // Get all users from the DB class
+    const result = db.getAllUsers(); 
+
+    // Send all user data as a JSON object
+    response.send({ "users": result }); 
 });
 
-// Route to get user
-app.get("/api/getFromId/:id", (req, res) => {
+// Define an endpoint to get a specific user based on ID
+app.get("/api/getFromId/:userId", (request, response) => {
+    // Get the user ID from the request parameters
+    const userId = request.params.userId;
 
-    const id = req.params.id;
-    const result = db.getUser(parseInt(id));
+    // Get the user based on ID from the DB class
+    const result = db.getUser(parseInt(userId));
+
+    // If a user is found, send the user data as a JSON object
     if (result) {
-        res.send({"user": result, "id": id});
+        response.send({ "user": result });
     } else {
-        res.status(500);
-        res.json({ error: "User not found." });
+        // If a user is not found, send an error with status code 500
+        response.status(500);
+        response.json({ error: "User not found." });
     }
-
 });
 
-// Route to login or signup
-app.post('/api/create', (req, res) => {
+// Define an endpoint to handle user creation or login
+app.post('/api/create', (request, response) => {
+    // Get password and email from the request body
+    const password = request.body.password;
+    const email = request.body.email;
 
-    const password = req.body.password;
-    const email = req.body.email;
-
+    // Get all users from the DB class
     const allUsers = db.getAllUsers();
+
+    // Get the count of users from the DB class
     const userCount = db.getUserCount();
+
     let user;
+
+    // Check if a user with the same email and password exists
     for (let i = 0; i < userCount; i++) {
         if (allUsers[i].email === email) {
             if (allUsers[i].password === password) {
                 user = allUsers[i];
             } else {
-                res.status(500);
-                res.json({ error: "Wrong password." });
+                // If password does not match, send an error with status code 500
+                response.status(500);
+                response.json({ error: "Wrong password." });
                 return;
             }
-
         }
     }
 
+    // If a user is found, send the user data and login method
     if (user) {
-        res.send({"user": user, method: "login"});
+        response.send({ "user": user, method: "login" });
     } else {
-        const result = db.createUser(
-            email,
-            password
-        );
-        res.send({"user": result, method: "signup"});
+        // If a user is not found, create a new user and send the user data and signup method
+        const result = db.createUser(email, password);
+        response.send({ "user": result, method: "signup" });
     }
-
-
 })
 
-// Get points of user
-app.get('/api/points/:id', (req, res) => {
+// Define an endpoint to get a user's points
+app.get('/api/points/:userId', (request, response) => {
+    // Get the user ID from the request parameters
+    const userId = request.params.userId;
 
-    const id = req.params.id;
-  
-    const user = db.getUser(parseInt(id));
+    // Get the user based on ID from the DB class
+    const user = db.getUser(parseInt(userId));
+
+    // If a user is found, send the user's points as a JSON object
     if (user) {
         const result = user.points
-        res.send({"points": result});
+        response.send({ "points": result });
     } else {
-        res.status(500);
-        res.json({ error: "User not found." });
+        // If a user is not found, send an error with status code 500
+        response.status(500);
+        response.json({ error: "User not found." });
     }
-
-
 });
 
-// Get user funds
-app.get('/api/funds/:id', (req, res) => {
-    const id = req.params.id
+// Define an endpoint to get a user's funds
+app.get('/api/funds/:userId', (request, response) => {
+    // Get the user ID from the request parameters
+    const userId = request.params.userId
 
-    const user = db.getUser(parseInt(id));
+    // Get the user based on ID from the DB class
+    const user = db.getUser(parseInt(userId));
+
+    // If a user is found, get the user's funds and send it as a JSON object
     if (user) {
         const result = user.getUserFunds()
-        res.send({"funds": result});
+        response.send({ "funds": result });
     } else {
-        res.status(500);
-        res.json({ error: "User not found." });
+        // If a user is not found, send an error with status code 500
+        response.status(500);
+        response.json({ error: "User not found." });
     }
 })
 
-// Add user funds
-app.put('/api/funds/:id', (req, res) => {
-    const id = req.params.id
-    const points = req.body.points
+// Define an endpoint to add funds to a user's account
+app.put('/api/funds/:userId', (request, response) => {
+    // Get the user ID and points from the request parameters and body
+    const userId = request.params.userId
+    const points = request.body.points
 
-    const user = db.getUser(parseInt(id));
+    // Get the user based on ID from the DB class
+    const user = db.getUser(parseInt(userId));
+
+    // If a user is found, get the user's current funds and add the points to it
     if (user) {
         const currentFunds = user.getUserFunds();
+        // If adding the points would not exceed $1000, add the funds and send a success message
         if ((currentFunds + points) <= 1000) {
             const result = user.addUserFunds(points)
-            res.send({"message": result});
+            response.send({ "message": result });
         } else {
-            res.status(500);
-            res.json({ error: "Max funds limit of $1000 reached." });    
+            // If adding the points would exceed $1000, send an error with status code 500
+            response.status(500);
+            response.json({ error: "Max funds limit of $1000 reached." });
         }
-
     } else {
-        res.status(500);
-        res.json({ error: "User not found." });
+        // If a user is not found, send an error with status code 500
+        response.status(500);
+        response.json({ error: "User not found." });
     }
 })
 
-// Get all menu items
-app.get('/api/menu/items', (req, res) => {
+// Define an endpoint to get all menu items
+app.get('/api/menu/items', (request, response) => {
+    // Get all menu items from the DB class
     const items = db.getMenuItems();
 
-    res.send({
-        items
-    }) 
+    // Send all menu items as a JSON object
+    response.send({ items })
 });
 
-// Get required points
-app.get('/api/requiredPoints', (req, res) => {
+// Define an endpoint to get required points for discounts
+app.get('/api/requiredPoints', (request, response) => {
+    // Get the required points for discounts from the DB class
     const requiredPoints = db.getRequiredPoints();
 
-    res.send({
-        requiredPoints
-    }) 
+    // Send the required points for discounts as a JSON object
+    response.send({ requiredPoints })
 });
 
-// Get points per order
-app.get('/api/order/points', (req, res) => {
+// Define an endpoint to get the points gained per order
+app.get('/api/order/points', (request, response) => {
+    // Get the points per order from the DB class
     const points = db.getPointsPerOrder();
-    res.send({
-        "points": points
-    }) 
+
+    // Send the points per order as a JSON object
+    response.send({ "points": points })
 })
 
-// Submit order
-app.post('/api/order/create', (req, res) => {
-
-    const userId = req.body.userId;
-    const item = req.body.item;
-    const discount = req.body.discount;
+// Define an endpoint to submit an order
+app.post('/api/order/create', (request, response) => {
+    // Get the user ID, item, discount and current date from the request body and Date function
+    const userId = request.body.userId;
+    const item = request.body.item;
+    const discount = request.body.discount;
     const date = Date.now()
 
-    const order = db.createOrder(userId, item, date, discount);
-    res.send({"order": order});
+    // Get the user based on ID from the DB class
+    const user = db.getUser(parseInt(userId));
 
-
+    // If the order uses a discount
+    if (discount) {
+        // Get the user's points and the required points for discounts
+        const userPoints = user.getUserPoints();
+        const requiredPoints = db.getRequiredPoints();
+    
+        // If the user has enough points for the discount, create the order and send the order as a JSON object
+        if (userPoints >= requiredPoints[discount]) {
+            const order = db.createOrder(userId, item, date, discount);
+            response.send({ "order": order });
+        } else {
+            // If the user does not have enough points, send an error with status code 500
+            response.status(500);
+            response.json({ error: "Not enough points for discount." });
+        }
+    } else {
+        // If the order does not use a discount, create the order and send the order as a JSON object
+        const order = db.createOrder(userId, item, date, discount);
+        response.send({ "order": order });
+    }
 })
 
-// Get user orders
-app.get('/api/order/:id', (req, res) => {
+// Define an endpoint to get a user's orders
+app.get('/api/order/:userId', (request, response) => {
+    // Get the user ID from the request parameters
+    const userId = request.params.userId;
 
-    const userId = req.params.id;
-
+    // Get the user's orders from the DB class
     const orders = db.getUserOrders(userId);
-    res.send({"userOrders": orders});
 
-
+    // Send the user's orders as a JSON object
+    response.send({ "userOrders": orders });
 })
 
+// Start the server and log a success message
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)
 })
