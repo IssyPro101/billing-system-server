@@ -45,14 +45,19 @@ class DB {
     createUser(email, password) {
         // Create a new User instance
         const newUser = new User(this.userCount, email, password)
+
         // Get the current user count as the user ID
         const userId = this.userCount;
+
         // Add the new user to the users object
         this.users[userId] = newUser;
+
         // Initialize an empty array for the user's orders
         this.orders[userId] = []
+
         // Increment the user count
         this.userCount += 1;
+        
         // Return the new user
         return newUser;
     }
@@ -81,10 +86,13 @@ class DB {
     addOrder(item, userId, date, price, discount) {
         // Create a new Order instance
         const newOrder = new Order(this.orderCount, item, userId, date, price, discount)
+
         // Add the new order to the user's orders
         this.orders[userId].push(newOrder)
+
         // Increment the order count
         this.orderCount += 1;
+
         // Return the new order
         return newOrder;
     }
@@ -95,8 +103,10 @@ class DB {
         if (discount) {
             // Calculate the discounted price
             const discountedPrice = item.price - (item.price * discount / 100);
+
             // Deduct the discounted price from the user's funds
             this.users[userId].funds -= discountedPrice;
+
             // Remove the required points from the user
             this.users[userId].removeUserPoints(this.requiredPoints[discount]);
 
@@ -107,6 +117,7 @@ class DB {
         } else {
             // If the order does not use a discount, deduct the price from the user's funds
             this.users[userId].funds -= item.price;
+
             // Add the points gained per order to the user
             this.users[userId].addUserPoints(this.pointsPerOrder);
 

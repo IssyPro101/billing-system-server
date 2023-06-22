@@ -3,14 +3,16 @@ const express = require('express'); // Express for building the server API
 const cors = require('cors') // CORS for cross origin resource sharing
 const DB = require("./classes/DB") // Custom class for handling the database
 const serverless = require("serverless-http"); // make API severless for hosting
+const bodyParser = require('body-parser') // Parse body from Buffer
+
 // Initialize the express application
 const app = express();
 
 // Create a router to handle routes
 const router = express.Router();
 
-// Set the port for the server
-// const PORT = 3001;
+// parse application/json
+router.use(bodyParser.json())
 
 // Use the CORS middleware to handle cross-origin requests
 app.use(cors());
@@ -148,15 +150,17 @@ router.put('/funds/:userId', (request, response) => {
     // If a user is found, get the user's current funds and add the funds to it
     if (user) {
         const currentFunds = user.getUserFunds();
-        // If adding the funds would not exceed $1000, add the funds and send a success message
+
         if (currentFunds === 1000) {
             // If funds is equal to $1000, send an error with status code 500
             response.status(500);
             response.json({ error: "Max funds limit of $1000 reached." });
         } else if ((currentFunds + funds) <= 1000) {
+            // If adding the funds would not exceed $1000, add the funds and send a success message
             const result = user.addUserFunds(funds)
             response.send({ "message": result });
         } else if ((currentFunds + funds) > 1000) {
+            // If adding the funds would exceed $1000, set funds to $1000 and send a success message
             const result = user.setFundsTo1000();
             response.send({ "message": result });
         }
@@ -239,9 +243,5 @@ router.get('/order/:userId', (request, response) => {
     response.send({ "userOrders": orders });
 })
 
-// Start the server and log a success message
-// app.listen(PORT, () => {
-//     console.log(`Server is running on ${PORT}`)
-// })
 module.exports = app;
 module.exports.handler = serverless(app);

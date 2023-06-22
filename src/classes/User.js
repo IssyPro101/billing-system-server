@@ -53,16 +53,16 @@ class User {
         this.funds += funds;
 
         // Return a message indicating the funds have been added
-        return `${funds} funds have been given to user.`;
+        return `$${funds} funds have been given to user.`;
     }
 
-    // Set user funds to 1000
+    // Method to set user funds to 1000
     setFundsTo1000() {
-        // Add the points to the user's current points
+        // Set funds to max funds of 1000
         this.funds = 1000;
 
-        // Return a message indicating the points have been added
-        return `User now has 1000 funds.`;
+        // Return a message indicating the funds have been added
+        return `User now has $1000 funds.`;
     }
 }
 
